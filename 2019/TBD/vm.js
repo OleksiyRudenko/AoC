@@ -10,7 +10,7 @@ class VM {
     this.output = [];
   }
   getValue(pm, pn) { // params mode, param number
-    return this.prg[this.getAddress(pm, pn)];
+    return this.prg[this.getAddress(pm, pn)] || 0;
   }
   getAddress(pm, pn) { // params mode, param number
     switch (pm[pn]) {
@@ -37,7 +37,9 @@ class VM {
       pm.unshift('');
       const seq = this.prg.slice(this.ptr, this.ptr+4);
       // this.debug && console.log(this.name, 'ptr', this.ptr, 'relBase', this.relBase, cmd, pm, seq);
-      const debugPrefix = this.name + ' ptr: ' + this.ptr + ' relBase: ' + this.relBase + ' cmd ' + cmd + ' mode ' + pm.toString();
+      const debugPrefix = this.name + ' ptr: ' + (this.ptr+'').padStart(3,'0') +
+        ' relBase: ' + (this.relBase+'').padStart(3,'0') +
+        ' cmd ' + cmd + ' mode ' + pm.toString();
       switch (cmd) {
         case '99': // exit
           this.debug && console.log(debugPrefix, 'HALTED with output', this.output);
@@ -46,8 +48,8 @@ class VM {
           this.output = [];
           return signal;
         case '01': // [3] = [1] + [2]
-          this.debug && console.log(debugPrefix, 'SUM',
-            `${prg[1]} ${prg[2]} ${prg[3]}`,
+          this.debug && console.log(debugPrefix,
+            `SUM(${prg[this.ptr+1]}, ${prg[this.ptr+2]}, ${this.ptr+prg[3]})`,
             `[${this.getAddress(pm, 3)}] = ${this.getValue(pm,1)} + ${this.getValue(pm,2)}`);
           this.prg[this.getAddress(pm, 3)] =
             this.getValue(pm, 1) + this.getValue(pm, 2);
@@ -61,7 +63,8 @@ class VM {
         case '03': // [1] = user input
           if (this.input.length) {
             this.prg[this.getAddress(pm, 1)] = this.input.shift();
-            this.debug && console.log(this.name, 'USED INPUT', prg[this.getAddress(pm, 1)],
+            this.debug && console.log(this.name,
+              'USED INPUT', prg[this.getAddress(pm, 1)],
               'Remaining', this.input);
             if (prg[this.getAddress(pm, 1)] === undefined) {
               console.log(this.name, "FATAL ERROR: Input contains 'undefined':", this.input,
@@ -80,12 +83,12 @@ class VM {
           }
           break;
         case '04': // output [1]
-          this.debug && console.log(debugPrefix, 'OUTPUT',
-            `${prg[1]}`,
+          this.debug && console.log(debugPrefix,
+            `OUTPUT(${prg[this.ptr + 1]})`,
             `${this.getValue(pm,1)}`);
           const result = this.getValue(pm, 1);
           this.output.push(result);
-          this.debug && console.log(this.name, '04 - OUTPUT', result);
+          // this.debug && console.log(this.name, '04 - OUTPUT', result);
           this.ptr+=2;
           break;
         case '05': // if [1] == true jump [2]
@@ -95,8 +98,8 @@ class VM {
             this.ptr += 3;
           break;
         case '06': // if [1] == false jump [2]
-          this.debug && console.log(debugPrefix, 'JMP on FALSE',
-            `${prg[1]} ${prg[2]}`,
+          this.debug && console.log(debugPrefix,
+            `JMP-on-FALSE(${prg[this.ptr+1]}, ${prg[this.ptr+2]})`,
             `${this.getValue(pm,1)} == FALSE? => ${this.getValue(pm,2)}`);
           if (!this.getValue(pm, 1))
             this.ptr = this.getValue(pm, 2);
