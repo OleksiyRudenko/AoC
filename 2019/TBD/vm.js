@@ -37,8 +37,8 @@ class VM {
       pm.unshift('');
       const seq = this.prg.slice(this.ptr, this.ptr+4);
       // this.debug && console.log(this.name, 'ptr', this.ptr, 'relBase', this.relBase, cmd, pm, seq);
-      const debugPrefix = this.name + ' ptr: ' + (this.ptr+'').padStart(3,'0') +
-        ' relBase: ' + (this.relBase+'').padStart(3,'0') +
+      const debugPrefix = this.name + ' ptr ' + (this.ptr+'').padStart(3,'0') +
+        ' relBase ' + (this.relBase+'').padStart(4,'0') +
         ' cmd ' + cmd + ' mode ' + pm.toString();
       switch (cmd) {
         case '99': // exit
@@ -47,7 +47,7 @@ class VM {
           const signal = [...this.output];
           this.output = [];
           return signal;
-        case '01': // [3] = [1] + [2]
+        case '01': // [1] + [2] => [3]
           this.debug && console.log(debugPrefix,
             `SUM(${prg[this.ptr+1]}, ${prg[this.ptr+2]}, ${this.ptr+prg[3]})`,
             `[${this.getAddress(pm, 3)}] = ${this.getValue(pm,1)} + ${this.getValue(pm,2)}`);
@@ -55,7 +55,7 @@ class VM {
             this.getValue(pm, 1) + this.getValue(pm, 2);
           this.ptr+=4;
           break;
-        case '02': // [3] = [1] * [2]
+        case '02': // [1] * [2] => [3]
           this.prg[this.getAddress(pm, 3)] =
             this.getValue(pm, 1) * this.getValue(pm, 2);
           this.ptr+=4;
