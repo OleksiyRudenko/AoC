@@ -184,7 +184,7 @@ function drawMap(richCoords, base, w, h) {
   });
   map[base[1]][base[0]] = 'X';
   console.log("====== MAP ======", richCoords.length);
-  console.log("Warning: same beam items are not shown as well!");
+  console.log("Warning: same beam items are not shown along with the first-in-a-beam asteroid!");
   map.forEach(r => {
     console.log(r.join(''));
   });
