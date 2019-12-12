@@ -26,7 +26,10 @@ x=17, y=4, z=-4>` */
     iveBeenHere: false,
   }));
 
-const systemState = new Set([moons.reduce((acc, m) => acc + makeState(m), '')]);
+/*
+ [ systemState => [baseMoon.coordsString] ]
+ */
+const universeState = new Map([[makeRelativeSystemState(moons), new Set([moons[0].c.join('')])]]);
 
 const pairs = [ [0,1], [0,2], [0,3], [1,2], [1,3], [2,3] ];
 
@@ -50,22 +53,23 @@ function run() {
     // apply velocities
     moons.forEach(m => {
       m.c = m.c.map((c, idx) => c + m.v[idx]);
-      const newState = makeState(m);
-      if (m.s.has(newState)) {
-        returns++;
-      } else {
-        m.s.add(newState);
-      }
     });
 
-    const newState = moons.reduce((acc, m) => acc + makeState(m), '');
-    if (systemState.has(newState)) {
-      return step;
+    const newRelativeSystemState = makeRelativeSystemState(moons);
+    if (step % 100000 === 0) { console.log('RELATIVE', newRelativeSystemState, 'ABS', makeSystemState(moons)); }
+    const baseMoonCoords = moons[0].c.join('');
+    if (universeState.has(newRelativeSystemState)) {
+      const coordsSet = universeState.get(newRelativeSystemState);
+      if (coordsSet.has(baseMoonCoords)) {
+        return step;
+      } else {
+        coordsSet.add(baseMoonCoords);
+      }
+    } else {
+      universeState.set(newRelativeSystemState, new Set([baseMoonCoords]));
     }
-    if (returns === 4)
-      systemState.add(newState);
     if (step % 100000 === 0) {
-      console.log(step, systemState.size, moons.map(m => m.s.size));
+      console.log(step, universeState.size);
     }
   }
 }
@@ -73,5 +77,15 @@ function run() {
 console.log('ANSWER 12-2', run() + 1);
 
 function makeState(moon) {
-  return moon.c.join('') + moon.v.join('')
+  return moon.c.join(',') + moon.v.join(',')
+}
+
+function makeRelativeSystemState(moons) {
+  const baseMoon = moons[0];
+  // coords offset against 1st moon
+  return moons.map(m => m.c.map((coord, i) => coord - baseMoon.c[i]).join(',') + ':' + m.v.join(',')).join(';');
+}
+
+function makeSystemState(moons) {
+  return moons.map(m => m.c.join(',') + ':' + m.v.join(',')).join(';');
 }
