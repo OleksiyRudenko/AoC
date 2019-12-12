@@ -17,47 +17,76 @@ x=17, y=4, z=-4>` */
     id: idx,
     c: e,
     v: [0,0,0],
-  }))
-  .map(m => ({
+  }));
+  /*.map(m => ({
     ...m,
     s: new Set([m.c.join('') + m.v.join('')]),
     period: undefined,
     periodChange: 0,
     iveBeenHere: false,
-  }));
+  })); */
 
 /*
  [ systemState => [baseMoon.coordsString] ]
  */
 const universeState = new Map([[makeRelativeSystemState(moons), new Set([moons[0].c.join('')])]]);
 
-const pairs = [ [0,1], [0,2], [0,3], [1,2], [1,3], [2,3] ];
-
 console.log('INITIAL', moons);
 
-function run() {
+// identify better base moon == longer periods
+/* for (let i = 0; i < 4; i++) {
+  console.log('BaseMoon', i, measure(moons, 100000, i));
+} */
+
+function measure(moonsSource, condition = 10000, baseMoonIdx = 0) {
+  const moons = cloneMoons(moonsSource);
+  const states = new Map();
+  for (let step = 0; step < condition; step++) {
+    progressMoons(moons);
+    const newRelativeSystemState = makeRelativeSystemState(moons, baseMoonIdx);
+    if (states.has(newRelativeSystemState)) {
+      states.set(newRelativeSystemState, states.get(newRelativeSystemState) + 1);
+      break;
+      // console.log('REPEATED!');
+    } else {
+      states.set(newRelativeSystemState, 1);
+    }
+  }
+  const counts = {}; // number of occurrences => number of states that occurred that number of occurrences
+  states.forEach((v, k) => {
+    counts[v] = counts[v] ? counts[v]+1 : 1;
+  });
+  return {
+    uniqueStates: states.size,
+    counts
+  };
+}
+
+console.log('REACH INITIAL STATE', reachInitialState(moons) + 1);
+
+function reachInitialState(moonsSource) {
+  const moons = cloneMoons(moonsSource);
+  const initialState = makeUniverseState(moons);
   for (let step = 0; true; step++) {
-    let returns = 0; // # of moons been here
-    // adjust velocities
-    pairs.forEach(pairIdx => {
-      const m = pairIdx.map(i => moons[i]);
-      for (let i=0; i<3; i++) {
-        let vd = 0;
-        if (m[0].c[i] < m[1].c[i]) vd = 1;
-        if (m[0].c[i] > m[1].c[i]) vd = -1;
-        m[0].v[i] += vd;
-        m[1].v[i] -= vd;
-      }
-    });
+    progressMoons(moons);
+    const newUniverseState = makeUniverseState(moons);
+    if (newUniverseState === initialState) {
+      return step;
+    }
+    if (step % 1000000 === 0) {
+      console.log(step, universeState.size);
+    }
+  }
+}
 
-    // apply velocities
-    moons.forEach(m => {
-      m.c = m.c.map((c, idx) => c + m.v[idx]);
-    });
+function run(moonsSource, condition = true, baseMoonIdx = 0) {
+  const moons = cloneMoons(moonsSource);
+  for (let step = 0; condition; step++) {
+    progressMoons(moons);
 
-    const newRelativeSystemState = makeRelativeSystemState(moons);
-    if (step % 100000 === 0) { console.log('RELATIVE', newRelativeSystemState, 'ABS', makeSystemState(moons)); }
-    const baseMoonCoords = moons[0].c.join('');
+    const newRelativeSystemState = makeRelativeSystemState(moons, baseMoonIdx);
+    if (step % 100000 === 0) { console.log('RELATIVE', newRelativeSystemState, 'ABS', makeUniverseState(moons)); }
+    const baseMoonCoords = moons[baseMoonIdx].c.join('');
     if (universeState.has(newRelativeSystemState)) {
       const coordsSet = universeState.get(newRelativeSystemState);
       if (coordsSet.has(baseMoonCoords)) {
@@ -74,18 +103,44 @@ function run() {
   }
 }
 
-console.log('ANSWER 12-2', run() + 1);
+// console.log('ANSWER 12-2', run(moons, true) + 1);
+
+function progressMoons(moons) {
+  const pairs = [ [0,1], [0,2], [0,3], [1,2], [1,3], [2,3] ];
+  // adjust velocities
+  pairs.forEach(pairIdx => {
+    const m = pairIdx.map(i => moons[i]);
+    for (let i=0; i<3; i++) {
+      let vd = 0;
+      if (m[0].c[i] < m[1].c[i]) vd = 1;
+      if (m[0].c[i] > m[1].c[i]) vd = -1;
+      m[0].v[i] += vd;
+      m[1].v[i] -= vd;
+    }
+  });
+
+  // apply velocities
+  moons.forEach(m => {
+    m.c = m.c.map((c, idx) => c + m.v[idx]);
+  });
+}
+
+function cloneMoons(moons) {
+  return moons.map(m => ({...m}));
+}
 
 function makeState(moon) {
   return moon.c.join(',') + moon.v.join(',')
 }
 
-function makeRelativeSystemState(moons) {
-  const baseMoon = moons[0];
+function makeRelativeSystemState(moons, baseMoonIdx = 0) {
+  const baseMoon = moons[baseMoonIdx];
   // coords offset against 1st moon
-  return moons.map(m => m.c.map((coord, i) => coord - baseMoon.c[i]).join(',') + ':' + m.v.join(',')).join(';');
+  return moons.map(m => m.c.map((coord, i) => coord - baseMoon.c[i]).join(',')
+      + ':' + m.v.join(','))
+    .join(';');
 }
 
-function makeSystemState(moons) {
+function makeUniverseState(moons) {
   return moons.map(m => m.c.join(',') + ':' + m.v.join(',')).join(';');
 }
