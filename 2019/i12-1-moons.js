@@ -33,7 +33,7 @@ for (let step = 0; step < 1000; step++) {
 
 // apply velocities
   moons.forEach(m => {
-    m.c = m.c.map((c, idx) => c += m.v[idx]);
+    m.c = m.c.map((c, idx) => c + m.v[idx]);
   });
 }
 
