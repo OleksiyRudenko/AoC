@@ -48,7 +48,7 @@ for (let i = 0; true; i++) {
     if (beenHere === -1) {
       robot.path.push(newLoc);
     } else {
-      robot.path = robot.path.slice(0, beenHere + 1);
+      robot.path.length = beenHere + 1;
     }
 
     if (result[0] === 2) {
@@ -65,7 +65,7 @@ for (let i = 0; true; i++) {
 
 drawMap(map, robot.l);
 console.log(robot);
-console.log("ANSWER 15-1", robot.path.length);
+console.log("ANSWER 15-1", robot.path.length - 1);
 const oxygenSourceLocation = [...robot.l];
 
 // ===== PART 2 ============
@@ -91,7 +91,7 @@ for (let i = 0; true; i++) {
     if (beenHere === -1) {
       robot.path.push(newLoc);
     } else {
-      robot.path = robot.path.slice(0, beenHere + 1);
+      robot.path.length = beenHere + 1;
     }
 
     if (robot.path.length === 1) {
