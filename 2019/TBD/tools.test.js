@@ -31,6 +31,11 @@ const testSuites = [
       { op: [3, -9, -27].sort(M.sort09).join(','), expected: '-27,-9,3', errorMessage: "[3, -9, -27].sort(M.sort09)" },
       { op: [8, -16, -12].sort(M.sort09).join(','), expected: '-16,-12,8', errorMessage: "[8, -16, -12].sort(M.sort09).join(',')" },
     ]},
+  { name: "test",
+    tests: [
+      { op: M.test(5,6, "X"), expected: 'Failure', errorMessage: "M.test(5,6, \"X\")" },
+      { op: M.test(5,5, "Z"), expected: 'Success', errorMessage: "M.test(5,5, \"Z\")" },
+    ]},
 ];
 
 testSuites.forEach(suite => {

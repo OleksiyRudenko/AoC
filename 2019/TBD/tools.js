@@ -36,6 +36,20 @@ const makeMatrix = (rows, cols, fill = undefined) => {
 
 const matrix2lines = mx => mx.map(row => row.join('')).join("\n");
 
+const test = (actual, expected, input) => {
+  if (actual !== expected) {
+    console.error("=== AoC TEST FAILED ===");
+    console.error("> From input", input);
+    console.error("> expected", expected);
+    console.error("> received", actual);
+    return "Failure";
+  }
+  console.log("=== AoC TEST PASSED ===");
+  console.error("> From input", input);
+  console.error("> received", expected);
+  return "Success";
+};
+
 module.exports ={
   gcd,
   lcm,
@@ -45,4 +59,5 @@ module.exports ={
   min,
   makeMatrix,
   matrix2lines,
+  test,
 };
