@@ -1,6 +1,6 @@
-const testSuite = require("./test-suite");
-const VM = require("./vm");
-const T = require("./tools");
+const testSuite = require("./TBD/test-suite");
+const VM = require("./TBD/vm");
+const T = require("./TBD/tools");
 
 let testSet = testSuite.xform(xform, [
   {
