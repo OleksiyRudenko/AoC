@@ -63,12 +63,17 @@ function main(input) {
 
   console.log(bots);
   const bot = bots[0];
-  mx[bot.c[1]][[bot.c[0]]] = bot.d;
-  // console.log(T.matrix2lines(mx));
+  // mx[bot.c[1]][[bot.c[0]]] = bot.d;
+  console.log(T.matrix2lines(mx));
 
   // ---
   console.log('PART 2: manual');
-  const instructions = makeInstructions(mx, bot);
+  const dirMap = {
+    '^': 0, '>': 1, 'v': 2, '<': 3,
+  };
+  bot.d = dirMap[bot.d];
+  const instructions = drive(mx, bot);
+  T.test(instructions, 'R,4,L,10,L,10,L,8,R,12,R,10,R,4,R,4,L,10,L,10,L,8,R,12,R,10,R,4,R,4,L,10,L,10,L,8,L,8,R,10,R,4,L,8,R,12,R,10,R,4,L,8,L,8,R,10,R,4,R,4,L,10,L,10,L,8,L,8,R,10,R,4','Matrix & Bot');
   const prg = makeProgram(instructions);
 
   console.log('PRG', prg);
@@ -100,76 +105,174 @@ function decode(charList) {
   return charList.map(charCode => String.fromCharCode(charCode)).join('');
 }
 
-function makeProgram(instructions) {
-  `> R,4,L,10,L,10,
-   L,8,R,12,
-   R,10,R,4,
-   > R,4,L,10,L,10,
-   L,8,R,12,
-   R,10,R,4,
-   > R,4,L,10,L,10,
-   L,8,
-   L,8,
-   R,10,R,4,
-   L,8,R,12,
-   R,10,R,4,
-   L,8,
-   L,8,
-   R,10,R,4,
-   > R,4,L,10,L,10,
-   L,8,
-   L,8,
-   R,10,R,4`;
+/**
+ @param {string} instructions - csv
+ @param {number} maxChunkLen -
+ **/
+function makeProgram(instructions, maxChunkLen) {
+  // "R,4,L,12" => [ R, 4, L, 12 ] {string}
+  const inflated = instructions.split(',');
+  // [ R, 4, L, 12 ] => R4LC
+  const hexalized = inflated.reduce((str, e) =>
+    str + (e.length > 1 ? String.fromCharCode(+e - 10 + 65) : e), '');
+  // R4LCR4L8LC => 12132 where 1=R4, 2=LC, 3=L8
+  const tokenized = hexalized.match(/.{1,2}/gi)
+    .reduce((acc, e) => {
+      let token = acc.tokens[e];
+      if (!token) {
+        token = acc.nextToken++;
+        acc.tokens[e] = token;
+      }
+      acc.seq += token;
+      return acc;
+    }, {
+      seq: '',
+      nextToken: 1,
+      tokens: {},
+    });
 
-  //  0123456790123456789
-  `>A R,4,L,10,L,10,
-   >B L,8,R,12,
-   >C R,10,R,4,
-   
-   >A R,4,L,10,L,10,
-   >B L,8,R,12,
-   >C R,10,R,4,
-   
-   >A R,4,L,10,L,10,
-   
-   >D L,8,L,8,
-   >C R,10,R,4,
-   
-   >B L,8,R,12,
-   >C R,10,R,4,
-   
-   >D L,8,L,8,
-   >C R,10,R,4,
-   
-   >A R,4,L,10,L,10,
-   
-   >D L,8,L,8,
-   >C R,10,R,4`;
+  console.log('ZIP 1', inflated, hexalized, tokenized);
 
-  //  0123456790123456789
-  `>A R,4,L,10,L,10,
-   >B L,8,R,12,R,10,R,4,
-   >A R,4,L,10,L,10,
-   >B L,8,R,12,R,10,R,4,
-   >A R,4,L,10,L,10,
-   >C L,8,L,8,R,10,R,4,
-   >B L,8,R,12,R,10,R,4,
-   >C L,8,L,8,R,10,R,4,
-   >A R,4,L,10,L,10,
-   >C L,8,L,8,R,10,R,4,
-   `;
+  const variations = [
+    {
+      seq: 'ABABACBCAC',
+      dict: {
+        A: '122',
+        B: '3451',
+        C: '3351',
+      },
+    },
+  ];
+  let nextVariation = variations.length;
+
+  // ... create compressed variation from tokenized
+  let source = tokenized.seq;
+
+
+  // Decode variations
+  const restoreCode = (s, tokens) => {
+    tokens = Object.entries(tokens).reduce((arr,entry) => {
+      arr[entry[1]]= entry[0];
+      return arr;
+    }, []);
+    return s.split('').map(i=>tokens[+i]) // detokenize
+      .map(pair => { // dehexalize
+        const e = pair.split('');
+        const number = (e[1] > '@') ? e[1].charCodeAt(0) - 65 + 10 : e[1];
+
+        return [e[0], number];
+      })
+      .flat() // flatten nested pairs
+      .join(',');
+  };
+
+  variations.forEach(v => {
+    v.seq = v.seq.split('').join(',');
+    v.dict = Object.fromEntries(Object.entries(v.dict).map(entry => {
+      entry[1] = restoreCode(entry[1], tokenized.tokens);
+      return entry;
+    }));
+  });
+
+  // console.log('ZIP RESTORED VARIATIONS', variations);
+
+  // ... choose best variation
+  const bestVariation = variations[0];
 
   return {
+    '@': bestVariation.seq,
+    ...bestVariation.dict,
+  };
+
+
+  //  0123456790123456789
+  //  R,5,R,5,R,5,R,5,R,5
+  /* `>A R,4,L,10,L,10,
+   >B L,8,R,12,R,10,R,4,
+   >A R,4,L,10,L,10,
+   >B L,8,R,12,R,10,R,4,
+   >A R,4,L,10,L,10,
+   >C L,8,L,8,R,10,R,4,
+   >B L,8,R,12,R,10,R,4,
+   >C L,8,L,8,R,10,R,4,
+   >A R,4,L,10,L,10,
+   >C L,8,L,8,R,10,R,4,
+   `; */
+
+  /* return {
     // : '01234567890123456789
     '@': 'A,B,A,B,A,C,B,C,A,C',
     'A': 'R,4,L,10,L,10',
     'B': 'L,8,R,12,R,10,R,4',
     'C': 'L,8,L,8,R,10,R,4',
-  }
+  } */
 }
 
-function makeInstructions(mx, bot) {
-  return 'R,4,L,10,L,10,L,8,R,12,R,10,R,4,R,4,L,10,L,10,L,8,R,12,R,10,R,4,R,4,L,10,L,10,L,8,L,8,R,10,R,4,L,8,R,12,R,10,R,4,L,8,L,8,R,10,R,4,R,4,L,10,L,10,L,8,L,8,R,10,R,4';
+/**
+  @param {Array.<Array.<string>>} mx - '#' is where bot can move on
+  @param {Object} bot - bot moves by '#' tiles, ignores X-sections and never turns back
+  @param {Array.<number>} bot.c - bot coordinates
+  @param {number} bot.d - bot direction (0 - N, 1 - E, 2 - S, 3 - W)
+  @param {boolean} debug
+  @return {string} csv, e.g. R,4,L,10,L,10
+ **/
+function drive(mx, bot , debug = false) {
+  const mxRows = mx.length;
+  const pathWayTile = '#',
+    noWayTile = '.';
+  const dirMap = {
+    0: [0, -1],
+    1: [1, 0],
+    2: [0, 1],
+    3: [-1, 0],
+  };
+  const path = [];
+  let stepsCount = 0;
+
+  const getTargetTile = (dir) => {
+    const targetOffset = dirMap[dir];
+    const targetCoords = [bot.c[0] + targetOffset[0], bot.c[1] + targetOffset[1]];
+    const targetRowCols = targetCoords[1] < mxRows && targetCoords[1] >=0 ? mx[targetCoords[1]].length : 0;
+    return [ targetCoords,
+      targetCoords[1] >= 0
+      && targetCoords[1] < mxRows
+      && targetCoords[0] >= 0
+      && targetCoords[0] < targetRowCols
+      ? mx[targetCoords[1]][targetCoords[0]]
+      : '-' ];
+  };
+
+  while (true) {
+    const target = getTargetTile(bot.d);
+    debug && console.log('BOT @', bot.c, bot.d);
+    if (target[1] !== pathWayTile) {
+      // rotate
+      debug && console.log('NO WAY after', stepsCount);
+      if (stepsCount) {
+        debug && console.log('>>> SAVE', stepsCount);
+        path.push(stepsCount);
+        stepsCount = 0;
+      }
+      const target = {
+        'R': getTargetTile((bot.d + 1) % 4),
+        'L': getTargetTile( bot.d - 1 === -1 ? 3 : bot.d - 1 ),
+      };
+      let rotationCommand = null;
+      if (target['R'][1] === pathWayTile) { rotationCommand = 'R'; bot.d = (bot.d + 1) % 4; }
+      if (target['L'][1] === pathWayTile) { rotationCommand = 'L'; bot.d = bot.d - 1 === -1 ? 3 : bot.d - 1; }
+      if (!rotationCommand) {
+        debug && console.log('EXIT WITH', path);
+        return path.join(',');
+      }
+      debug && console.log('>>> SAVE', rotationCommand);
+      path.push(rotationCommand);
+    } else {
+      // move on
+      ++stepsCount;
+      debug && console.log('MOVE ON' ,stepsCount);
+      bot.c = target[0];
+    }
+  }
 }
 
 function xform(input) {
