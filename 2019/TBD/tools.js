@@ -36,17 +36,27 @@ const makeMatrix = (rows, cols, fill = undefined) => {
 
 const matrix2lines = mx => mx.map(row => row.join('')).join("\n");
 
+const cloneMatrix = mx => {
+  const clone = [];
+  mx.forEach(row => {
+    clone.push([...row]);
+  });
+  return clone;
+};
+
 const test = (actual, expected, input) => {
   if (actual !== expected) {
     console.error("=== AoC TEST FAILED ===");
-    console.error("> From input", input);
+    console.error("> From input");
+    console.error(input);
     console.error("> expected", expected);
     console.error("> received", actual);
     return "Failure";
   }
   console.log("=== AoC TEST PASSED ===");
-  console.error("> From input", input);
-  console.error("> received", expected);
+  console.log("> From input");
+  console.log(input);
+  console.log("> received", expected);
   return "Success";
 };
 
@@ -59,5 +69,6 @@ module.exports ={
   min,
   makeMatrix,
   matrix2lines,
+  cloneMatrix,
   test,
 };
