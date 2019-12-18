@@ -9,7 +9,47 @@ let testSet = testSuite.xform(xform, [
 ######################.#
 #d.....................#
 ########################`,
-    expected: 86,
+    expected: 86, // abcdef better than abcedf
+    /*
+    requires =
+    f : DECA
+    d : B
+    e : CA
+    b : A
+    c : B
+    a : null
+    target = f
+    path = ?
+     */
+  },
+  {
+    input: `########################
+#...............b.C.D.f#
+#.######################
+#.....@.a.B.c.d.A.e.F.g#
+########################`,
+    expected: 132, // bacdefeg
+  },
+  {
+    input: `#################
+#i.G..c...e..H.p#
+########.########
+#j.A..b...f..D.o#
+########@########
+#k.E..a...g..B.n#
+########.########
+#l.F..d...h..C.m#
+#################`,
+    expected: 136, // a, f, b, j, g, n, h, d, l, o, e, p, c, i, k, m
+  },
+  {
+    input: `########################
+#@..............ac.GI.b#
+###d#e#f################
+###A#B#C################
+###g#h#i################
+########################`,
+    expected: 81, //  a, c, f, i, d, g, b, e, h
   },
   {
     input: mainInput,
@@ -27,6 +67,7 @@ function main(mx) {
   console.log(T.matrix2lines(mx));
   console.log(start);
 
+  // explore arena
   let probes = [{v:'@',l:start,d:0,p:''}], newProbes;
   let distance = 1;
   let items = [];
@@ -65,6 +106,8 @@ function main(mx) {
   }
 
   console.log('ITEMS FOUND', items);
+
+  // Find optimal pathway
 
   // find first key
   let keyIndex = items.findIndex(e => isKey(e.v));
