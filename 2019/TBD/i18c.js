@@ -97,6 +97,11 @@ function main(mx) {
 
   const paths = traverseGraph(graph, entryPoints[0]);
 
+  const fullPaths = printDeepest(paths).flat(50);
+  const fullPathsSet = new Set(fullPaths);
+  console.log('LENs', fullPaths.length, fullPathsSet.size);
+  console.log('LENs', fullPaths);
+
   return paths;
 }
 
@@ -106,8 +111,12 @@ function traverseGraph(g, needleNode, keyStore = [], distanceAcc = 0) {
   const blockedDoors = [];
   let visited = [ needleNode ];
   let queue = [...needleNode.n];
+  count = 0;
+
+  // console.log('TRAVERSING GRAPH', needleNode, keyStore, distanceAcc);
 
   while (queue.length) {
+    if (++count % 100 === 0) console.log('processing Node', count);
     const node = queue.shift();
     if (visited.includes(node)) {
       continue;
@@ -151,7 +160,8 @@ function traverseGraph(g, needleNode, keyStore = [], distanceAcc = 0) {
    return accumulated distance
    */
   newKeyNodes.forEach(kn => {
-    const path = traverseGraph(g, kn, [...keyStore, kn.v]);
+    distanceAcc % 16 === 0 && console.log(distanceAcc);
+    const path = traverseGraph(g, kn, [...keyStore, kn.v], distanceAcc+1);
 
     paths.push([...keyStore, kn.v, ...path]);
   });
@@ -280,6 +290,21 @@ function printNode(node) {
     node.n && (' n[' + node.n.map(n => padNumber(n.id)) + ']'),
   ];
   return data.join('');
+}
+
+function printDeepest(i) {
+  let anyChildren = false;
+  let output = [];
+  i.forEach(e => {
+    if (Array.isArray(e)) {
+      anyChildren = true;
+      output.push(printDeepest(e));
+    }
+  });
+  if (!anyChildren) {
+    return [i.join('')];
+  }
+  return output;
 }
 
 function padNumber(n, w = 3, filler = ' ') {
