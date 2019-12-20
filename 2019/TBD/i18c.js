@@ -62,7 +62,7 @@ let testSet = testSuite.xform(xform, [
 
 const lastAnswer = testSuite.run(main, testSet, T.matrix2lines, 1);
 
-console.log("ANSWER X-1", lastAnswer);
+console.log("ANSWER 20-1", lastAnswer);
 
 function main(mx) {
   const start = findStart(mx, '@');
