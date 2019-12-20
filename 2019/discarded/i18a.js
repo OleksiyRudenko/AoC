@@ -1,6 +1,6 @@
-const testSuite = require("../TBD/test-suite");
-const T = require("../TBD/tools");
-const mainInput = require("../TBD/i18--input");
+const testSuite = require("../common/test-suite");
+const T = require("../common/tools");
+const mainInput = require("../in-progress/i18--input");
 
 console.log('====================== ABANDONED, WRONG APPROACH ====================');
 

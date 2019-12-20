@@ -1,6 +1,6 @@
-const testSuite = require("./TBD/test-suite");
-const T = require("./TBD/tools");
-const INPUT = require("./TBD/i20--input");
+const testSuite = require("../common/test-suite");
+const T = require("../common/tools");
+const INPUT = require("../in-progress/i20--input");
 
 let testSet = testSuite.xform(xform, [
   {

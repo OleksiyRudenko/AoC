@@ -1,4 +1,4 @@
-const M = require("./TBD/tools");
+const M = require("../common/tools");
 let moons =
   /* `x=-1, y=0, z=2>
 x=2, y=-10, z=-7>

@@ -1,5 +1,5 @@
-const testSuite = require("./test-suite");
-const T = require("./tools");
+const testSuite = require("../common/test-suite");
+const T = require("../common/tools");
 const INPUT = require("./i20--input");
 
 let testSet = testSuite.xform(xform, [

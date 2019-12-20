@@ -1,5 +1,5 @@
-const testSuite = require("./test-suite");
-const VM = require("./vm");
+const testSuite = require("../common/test-suite");
+const VM = require("../common/vm");
 
 let testSet = testSuite.xform(xform, [
   {
