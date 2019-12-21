@@ -15,15 +15,20 @@ console.log("ANSWER 21-2", lastAnswer);
 function main(input) {
   const vm = new VM("R", input, [], false);
   let prg = [
+    // if any of (A,B,C) is EMPTY and D is FULL then JUMP
     'NOT A J',
     'NOT B T',
     'OR T J',
     'NOT C T',
     'OR T J',
-    'AND D J', // J = (!A OR !B OR !C) AND D
+    'AND D J',
+    // have to JUMP?
     'NOT E T',
+    // can we JUMP at H?
     'AND H T',
+    // E or H are FULL?
     'OR E T',
+    // JUMP only if E or H is FULL
     'AND T J',
     'RUN',
   ];
