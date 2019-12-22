@@ -1,6 +1,6 @@
 const testSuite = require("../common/test-suite");
 const T = require("../common/tools");
-const mainInput = require("../in-progress/i18--input");
+const mainInput = require("../pending/i18--input");
 
 console.log('====================== ABANDONED, WRONG APPROACH ====================');
 
