@@ -1,8 +1,11 @@
 const testSuite = require("../common/test-suite");
 const T = require("../common/tools");
-const mainInput = require("./i18--input");
+const mainInput = require("../done/i18--input");
 
 // console.log('====================== ABANDONED, WRONG APPROACH ====================');
+console.log('18 PENDING but DOABLE, need implementing memoization and early options cuts');
+console.log('Community solutions',
+  'https://www.reddit.com/r/adventofcode/comments/ec8090/2019_day_18_solutions/');
 
 let testSet = testSuite.xform(xform, [
   {
