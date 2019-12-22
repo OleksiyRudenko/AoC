@@ -1,6 +1,10 @@
 const testSuite = require("../common/test-suite");
 const T = require("../common/tools");
-const INPUT = require("./i20--input");
+const INPUT = require("../done/i20--input");
+
+console.log('20-2 PENDING but DOABLE, need implementing recurrent (nested) traverse');
+console.log('Community solutions',
+  'https://www.reddit.com/r/adventofcode/comments/ed5ei2/2019_day_20_solutions/');
 
 let testSet = testSuite.xform(xform, [
   {
