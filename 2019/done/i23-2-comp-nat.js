@@ -22,15 +22,15 @@ function main(input) {
     queue[i] = [i];
   }
 
-  while (true) {
+  while (!terminateSignal) {
     for (let i = 0; i < 50; i++) {
       const packet = queue[i].length ? queue[i].shift() : [-1];
-      res = vms[i].run(packet);
+      const res = vms[i].run(packet);
       if (res.length >= 3) {
         while (res.length) {
           const subRes = res.splice(0, 3);
           if (subRes[0] === 255) {
-            console.log('NAT', subRes);
+            // console.log('NAT', subRes);
             nat = [subRes[1], subRes[2]];
           } else {
             queue[subRes[0]].push([subRes[1], subRes[2]]);
@@ -43,17 +43,14 @@ function main(input) {
     }
 
     const totalQueueLength = queue.map(q => q.length).reduce(T.sum);
-    if (totalQueueLength === 0) {
-      console.log('NAT: reset network with', nat);
+    if (totalQueueLength === 0 && nat) {
+      // console.log('NAT: reset network with', nat);
       if (natSent && natSent[1] === nat[1]) {
         terminateSignal = nat[1];
-        break;
       }
       queue[0].push(nat);
       natSent = nat;
     }
-
-    if (terminateSignal) break;
   }
 
   return terminateSignal;
