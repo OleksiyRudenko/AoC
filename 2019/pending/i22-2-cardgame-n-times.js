@@ -25,6 +25,10 @@ console.log("ANSWER 22-2:", lastAnswer);
 function main(input) {
   // atomicTests();
 
+  const deckSize = 119315717514047,
+    repetitions = 101741582076661,
+    targetCardPosition = 2021; // 2020
+
   const deckLen = input.length > 20 ? 10007 : 10;
   let deck = makeDeck(deckLen);
   // console.log('COMMANDS', input);
@@ -92,6 +96,45 @@ function dealWithIncrement(deck, n) {
 
   return newDeck;
 }
+
+// https://www.reddit.com/r/adventofcode/comments/eeeixy/remember_the_challenges_arent_here_for_you_to/
+// https://www.reddit.com/r/adventofcode/comments/ee56wh/2019_day_22_part_2_so_whats_the_purpose_of_this/fbqctrr/?utm_source=share&utm_medium=web2x
+
+const cutCard = (cardPosition, inc, cardsCount) => (cardPosition - inc) % cardsCount;
+const dealCard = (cardPosition, cardsCount) => (-1 - cardPosition) % cardsCount;
+const dealCardStep = (cardPosition, step, cardsCount) =>  cardPosition * step % cardsCount;
+
+const cutCardReverse = (newCardPosition, inc, cardsCount) => (newCardPosition + inc) % cardsCount;
+const dealCardReverse = (newCardPosition, cardsCount) => (-1 - newCardPosition) % cardsCount;
+const dealCardStepReverse = (newCardPosition, step, cardsCount) => {
+
+  /*
+    Modulo mult: (cardPosition * step) % cardsCount = a
+    (cardPosition * step) = x
+    x % m = a
+
+    m is prime in our case.
+
+    Modulo mult inverse: find x having a, oldCardPosition then equals x / step
+
+    a x mod m = 1
+
+    Find x using https://en.wikipedia.org/wiki/Fermat%27s_little_theorem
+
+
+
+   */
+
+  return powerModulo(newCardPosition, cardsCount - 2, cardsCount) / step;
+};
+
+const powerModulo = (x, y, m) => {
+  if (y === 0) return 1;
+  const p = powerModulo(x, y/2, m) % m;
+  const p2 = (p * p) % m;
+  return (y % 2 === 0) ? p2 : (x * p2) % m;
+};
+
 
 function xform(input) {
   const rows = input.split("\n");
