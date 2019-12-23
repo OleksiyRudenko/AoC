@@ -1,6 +1,5 @@
 const testSuite = require("../common/test-suite");
 const VM = require("../common/vm");
-const T = require("../common/tools");
 
 let testSet = testSuite.xform(xform, [
   {
@@ -15,22 +14,19 @@ console.log("ANSWER 23-1", lastAnswer);
 
 function main(input) {
   const vms = new Array(50).fill(null)
-    .map((e, idx) => new VM("R"+idx, input, []));
-  let queue = [], nat = null, terminateSignal = null, natSent = null;
+    .map((e, idx) => new VM("R"+idx, input, [idx]));
+  let queue = new Array(50).fill(null).map(e => []),
+    terminateSignal = null;
 
-  for (let i = 0; i < 50; i++) {
-    queue[i] = [i];
-  }
-
-  while (true) {
+  while (!terminateSignal) {
     for (let i = 0; i < 50; i++) {
       const packet = queue[i].length ? queue[i].shift() : [-1];
-      res = vms[i].run(packet);
+      const res = vms[i].run(packet);
       if (res.length >= 3) {
         while (res.length) {
           const subRes = res.splice(0, 3);
           if (subRes[0] === 255) {
-            console.log('FINAL', res);
+            console.log('FINAL', subRes);
             terminateSignal = subRes[2];
             break;
           } else {
@@ -43,7 +39,6 @@ function main(input) {
       }
       if (terminateSignal) break;
     }
-    if (terminateSignal) break;
   }
 
   return terminateSignal;

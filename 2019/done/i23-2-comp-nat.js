@@ -15,12 +15,9 @@ console.log("ANSWER 23-2", lastAnswer);
 
 function main(input) {
   const vms = new Array(50).fill(null)
-    .map((e, idx) => new VM("R"+idx, input, []));
-  let queue = [], nat = null, terminateSignal = null, natSent = null;
-
-  for (let i = 0; i < 50; i++) {
-    queue[i] = [i];
-  }
+    .map((e, idx) => new VM("R"+idx, input, [idx]));
+  let queue = new Array(50).fill(null).map(e => []),
+    nat = null, terminateSignal = null, natSent = null;
 
   while (!terminateSignal) {
     for (let i = 0; i < 50; i++) {
