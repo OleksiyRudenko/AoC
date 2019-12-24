@@ -2,9 +2,14 @@ const testSuite = require("../common/test-suite");
 const mainInput = require("../done/i22--input");
 
 console.log('22-2 PENDING for the lack of background');
-console.log('Community solutions',
-  'https://www.reddit.com/r/adventofcode/comments/ee0rqi/2019_day_22_solutions/');
-
+/*
+Community solutions:
+  https://www.reddit.com/r/adventofcode/comments/ee0rqi/2019_day_22_solutions/
+Tutorials:
+  https://www.reddit.com/r/adventofcode/comments/eepz2i/2019_day_22_part_2_clean_annotated_solution_in_c/
+  https://www.reddit.com/r/adventofcode/comments/eeizke/2019_day_22_everyday_were_shuffling/
+    (for shuffle optimizations see also ./i22--input-optimized.js)
+*/
 let testSet = testSuite.xform(xform, [
   {
     input: mainInput,
@@ -27,7 +32,7 @@ function main(input) {
 
   const deckSize = 119315717514047,
     repetitions = 101741582076661,
-    targetCardPosition = 2021; // 2020
+    targetCardPosition = 2020;
 
   const deckLen = input.length > 20 ? 10007 : 10;
   let deck = makeDeck(deckLen);
