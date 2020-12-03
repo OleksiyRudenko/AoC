@@ -1,0 +1,16 @@
+{
+  "name": "aoc",
+  "version": "1.2020.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "onchange \"**/*.js\" -e \"**/*.test.js\" -- node {{file}}",
+    "test": "jest"
+  },
+  "author": "Oleksiy Rudenko",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.6.3",
+    "onchange": "^7.1.0"
+  }
+}
