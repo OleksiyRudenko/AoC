@@ -5,6 +5,12 @@ const runTests = require("../../../common/test-runner");
 const INPUT = require("./input");
 console.log(path.basename(__filename));
 
+/*
+ *
+ * Perhaps the original dataset binary negation for CO2 calcs would simplify the logic implementation
+ *
+ */
+
 const testSet = [ [23, 10, 230], [1679, 3648, 6124992] ]
   .map((expected, index) => ({
     input: INPUT[index],
