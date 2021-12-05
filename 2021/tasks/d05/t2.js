@@ -20,18 +20,19 @@ function main(input) {
   // const hvOnly = input;
   // console.log(hvOnly);
   const points = input.reduce((points, line) => {
-    const [[x1, y1], [x2, y2]] = line;
+    let [[x1, y1], [x2, y2]] = line;
     // console.log("Line", line);
-    let w = x2 - x1, h = y2 - y1;
+    const w = x2 - x1, h = y2 - y1;
+    // console.log({w, h});
     const sizeMax = max(Math.abs(w), Math.abs(h));
-    const dx = w / (sizeMax);
-    const dy = h / (sizeMax);
-    // w += w<0 ? -1 : 1;
-    // h += h<0 ? -1 : 1;
+    const dx = w === 0 ? 0 : (w < 0 ? -1 : 1);
+    const dy = h === 0 ? 0 : (h < 0 ? -1 : 1);
     for (let i = 0; i <= sizeMax; i++) {
-      const point = `${Math.floor(x1 + dx * i)},${Math.floor(y1 + dy * i)}`;
+      const point = `${x1},${y1}`;
       // console.log(point);
       points[point] = points[point] ? points[point] + 1 : 1;
+      x1 += dx;
+      y1 += dy;
     }
     return points;
   }, {});
