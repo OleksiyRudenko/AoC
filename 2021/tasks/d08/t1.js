@@ -18,14 +18,14 @@ console.log("ANSWER", lastAnswer);
 console.log(ruler());
 
 function main(input) {
-  const outputs = input
-    .map(({output}) => output)
+  const readings = input
+    .map(({readings}) => readings)
     .flat()
-  console.log(outputs.length, outputs);
+  console.log(readings.length, readings);
 
-  const count1478 = outputs
-    .reduce((counter, output) => {
-      const l = output.length;
+  const count1478 = readings
+    .reduce((counter, reading) => {
+      const l = reading.length;
       const digit = len2digit[l];
       if (digit !== undefined) {
         // console.log(output, l, digit);
@@ -43,8 +43,5 @@ function main(input) {
 }
 
 function friendlyInput(input) {
-  return input.map(({input, output}) => ({
-    input: input.map(word => word.join("")),
-    output: output.map(word => word.join("")),
-  }));
+  return input.slice(0, 20);
 }

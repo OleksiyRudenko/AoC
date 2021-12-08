@@ -3,8 +3,7 @@ const { ruler, } =
   require('../../../common/helpers');
 const runTests = require("../../../common/test-runner");
 const INPUT = require("./input");
-const { len2digit, // digitDetectionRules
-  } = require("./helper");
+const { digitDetectionRules } = require("./helper");
 console.log(path.basename(__filename));
 
 const testSet = [ 983030, 61229, ]
@@ -19,159 +18,47 @@ console.log("ANSWER", lastAnswer);
 console.log(ruler()) ;
 
 function main(input) {
-
-  const nums = input.map(({input, output}, idx) => {
-    // go through all rows convert into output decimals
-
-    // stringify
-    const inputs = input.map(word => glue(word));
-    const outputs = output.map(word => glue(word));
-
-    const dict1478 = find1478(inputs);
-    const dict1478len = Object.keys(dict1478).length;
-    if (dict1478len !== 4) {
-      console.log(`Ooops! At row ${idx} sentence ${inputs}`,
-        "doesn't contain 1478 but contains", Object.keys(dict1478).join(""));
-    }
-    // console.log(">> Dict 1478")
-
-    // build map
-    let map;
-
-    // map = makeMap(inputs, digitDetectionRules, idx === 0);
-
-    map = [
-      undefined,
-      dict1478['1'],
-      undefined,
-      undefined,
-      dict1478['4'],
-      undefined,
-      undefined,
-      dict1478['7'],
-      dict1478['8'],
-      undefined,
-    ];
-    map = completeMap(map, inputs, idx === 0);
-
-    const digits = outputs.map(word => map.indexOf(word));
-
-    !idx && console.log(digits, "<=", outputs) ;
+  // we expect letters in each word ordered
+  const nums = input.map(({wiringsSet, readings}) => {
+    const dictionary = makeDictionary(wiringsSet, digitDetectionRules);
+    const digits = readings.map(word => dictionary.indexOf(word));
     return +digits.join("");
   });
-
-
-  return nums.reduce((sum, n) => sum +n, 0);
+  return nums.reduce((sum, n) => sum + n, 0);
 }
 
-/*
-function makeMap(inputs, rules, debug = false) {
-  inputs.sort((a, b) => a.length - b.length); //put in order by word length
-  debug && console.log("======== MakeMap");
-  debug && console.log(rules);
-  debug && console.log(inputs);
-  const map = inputs.reduce((map, word) => {
-    const ruleset = rules[word.length];
-    ruleset.forEach(([digit, intersectionWith4, intersectionWith7]) => {
+/**
+ * Creates a map of words for each decimal digit
+ * @param wiringsSet - inbound words
+ * @param rules - digit identification rule sets
+ * @returns {[]} - [digit] = word-for-a-digit
+ */
+function makeDictionary(wiringsSet, rules) {
+  // Put words in order by word length.
+  // This way words for 4 and 7 will be figured out by the time they are needed
+  // to identify words for other digits that depend on them
+  wiringsSet.sort((a, b) => a.length - b.length);
+  return wiringsSet.reduce((dictionary, word) => {
+    rules[word.length].forEach(([digit, intersectionWith4, intersectionWith7]) => {
       if (intersectionWith4 === undefined) {
-        map[digit] = word;
+        // make decision purely on word length for 1, 4, 7, 8
+        dictionary[digit] = word;
       } else {
-        const is4 = getIntersectionLength(word, map[4]),
-          is7 = getIntersectionLength(word, map[7]);
+        const is4 = getIntersectionLength(word, dictionary[4]);
+        const is7 = getIntersectionLength(word, dictionary[7]);
         if (is4 === intersectionWith4 && is7 === intersectionWith7) {
-          map[digit] = word ;
+          dictionary[digit] = word;
         }
       }
     });
-    return map;
+    return dictionary;
   }, Array(10));
-  debug && console.log(map);
-  debug && console.log("======== MakeMap END");
-  return map;
-}
-*/
-
-function completeMap(map, inputs, debug = false) {
-  debug && console.log("=== Complete map");
-  debug && console.log("Inputs", inputs);
-  debug && console.log(map);
-  let defined;
-
-  defined = Object.values(map).filter(w => w);
-  inputs = inputs.filter(word => !defined.includes(word));
-  // debug && console.log("Filtered inputs", inputs);
-
-  // find 3 & 9
-  inputs.forEach(word => {
-    if (word.length === 5 && getIntersectionLength(word, map[7]) === 3) {
-      map[3] = word;
-      defined.push(word);
-    }
-    if (word.length === 6 && getIntersectionLength(word, map[4]) === 4) {
-      map[9] = word;
-      defined.push(word);
-    }
-  });
-  inputs = inputs.filter(word => !defined.includes(word));
-
-  // debug && console.log(map);
-  // debug && console.log("Filtered inputs", inputs);
-
-  // find 5 & 0
-  inputs.forEach(word => {
-    if (word.length === 5 && getIntersectionLength(word, map[4]) === 3) {
-      map[5] = word;
-      defined.push(word);
-    }
-    if (word.length === 6 && getIntersectionLength(word, map[7]) === 3) {
-      map[0] = word;
-      defined.push(word);
-    }
-  });
-  inputs = inputs.filter(word => !defined.includes(word));
-
-  // debug && console.log(map);
-  // debug && console.log("Filtered inputs", inputs);
-
-  // find 2 & 6
-  inputs.forEach(word => {
-    if (word.length === 5) {
-      map[2] = word;
-      defined.push(word);
-    }
-    if (word.length === 6) {
-      map[6] = word;
-      defined.push(word);
-    }
-  });
-  debug && console.log("MAP", map);
-
-  return map;
 }
 
 function getIntersectionLength(word1, word2) {
-  word1 = word1.split("");
-  return word2.split("").filter(l => word1.includes(l)).length;
-}
-
-function find1478(sentence) {
-  return sentence.reduce((map, word) => {
-    const digit = len2digit[word.length];
-    if (digit !== undefined) {
-      // console.log(output, l, digit);
-      map[digit] = word;
-    }
-    return map;
-  }, {});
-}
-
-function glue(arr) {
-  return arr.join("");
+  return [...word2].filter(letter => word1.includes(letter)).length;
 }
 
 function friendlyInput(input) {
-  return input.map(({input, output}) => ({
-    input: input.map(word => word.join("")),
-    output: output.map(word => word.join("")),
-  }));
+  return input.slice(0, 20);
 }

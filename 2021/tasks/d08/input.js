@@ -212,10 +212,10 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 ].map(input =>
     input.split("\n")
       .map(line => {
-        const [input, output] = line.split(" | ");
+        const [wiringsSet, readings] = line.split(" | ");
         return {
-          input: input.split(" ").map(word => word.split("").sort()),
-          output: output.split(" ").map(word => word.split("").sort()),
+          wiringsSet: wiringsSet.split(" ").map(word => word.split("").sort().join("")),
+          readings: readings.split(" ").map(word => word.split("").sort().join("")),
         };
       })
 );

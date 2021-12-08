@@ -26,12 +26,12 @@ const len2digit = {
 
 // rules per word length
 const digitDetectionRules = {
-  2: [[1]], // if word.length === 2 it is word for 1
+  2: [[1]], // if word.length === 2 it is word for 1; no need to calc any intersections
   3: [[7]],
   4: [[4]],
   5: [  // if word.length === 5
     [3, 3, 3, ],
-    [5, 3, 2, ], // it is word for 5 shares 3 letters with word[4] and 2 letters with word[7]
+    [5, 3, 2, ], // it is word for 5 if shares 3 letters with word[4] and 2 letters with word[7]
     [2, 2, 2, ],
   ],
   6: [
