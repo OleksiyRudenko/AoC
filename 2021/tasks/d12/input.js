@@ -1,0 +1,63 @@
+const input = [
+  `start-YA
+ps-yq
+zt-mu
+JS-yi
+yq-VJ
+QT-ps
+start-yq
+YA-yi
+start-nf
+nf-YA
+nf-JS
+JS-ez
+yq-JS
+ps-JS
+ps-yi
+yq-nf
+QT-yi
+end-QT
+nf-yi
+zt-QT
+end-ez
+yq-YA
+end-JS`,
+  `start-A
+start-b
+A-b
+A-c
+b-d
+A-end
+b-end`,
+  `dc-end
+HN-start
+start-kj
+dc-start
+dc-HN
+LN-dc
+HN-end
+kj-sa
+kj-HN
+kj-dc`,
+  `fs-end
+he-DX
+fs-he
+start-DX
+pj-DX
+end-zg
+zg-sl
+zg-pj
+pj-he
+RW-he
+fs-DX
+pj-RW
+zg-RW
+start-pj
+he-WI
+zg-he
+pj-fs
+start-RW`,
+].map(input =>
+    input.split("\n").map(row => row.split("-"))
+);
+module.exports = input;
