@@ -6,7 +6,7 @@ const INPUT = require("./input");
 // const { helper } = require("./helper");
 console.log(path.basename(__filename));
 
-const testSet = [ 0, 0, ]
+const testSet = [ 0, 0, ] // failures: ?>X ?<X
   .map((expected, index) => ({
     input: INPUT[index],
     expected,
